@@ -1,1 +1,4 @@
-Just a simple bot that auto searches random gibberish on bing
+Just a simple bot that auto searches random gibberish on bing.
+
+Note in order to set this up as a cron job you must use xvfb
+Example: 0 8 * * * DISPLAY=localhost:1.0 xvfb-run /path/to/script/bingbot/bingbot.rb
