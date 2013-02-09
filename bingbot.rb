@@ -1,18 +1,21 @@
-#!/usr/bin/env ruby 
+#!/usr/bin/ruby
 require "rubygems"
 require "bundler/setup"
 require "capybara"
 require "capybara/dsl"
 require "capybara-webkit"
 require "faker"
+require "yaml"
 Capybara.run_server = false
 Capybara.app_host = "http://www.bing.com"
 Capybara.current_driver = :webkit
 Capybara.default_wait_time = 5
 #Capybara.current_driver = :selenium ###Uncomment for testing
 #Capybara.register_driver :selenium do |app|
-#  Capybara::Selenium::Driver.new(app, :browser => :chrome)
+#  Capybara::Selenium::Driver.new(app, :browser => :chrome)jj
 #end
+
+CONFIG = YAML.load_file(File.join(File.dirname(File.expand_path(__FILE__)),"config.yml")) unless defined? CONFIG
 module Test
     class Bing_bot
         include Capybara::DSL
@@ -25,8 +28,8 @@ module Test
             save_screenshot "status.png"
             find(:xpath, "//table[@id='id_dt']/tbody/tr[position() = 2]").click_on('Connect')#click on the second connect link
             save_screenshot "status.png"
-            fill_in "login", :with=>ENV['BING_USERNAME']
-            fill_in "passwd", :with=>ENV['BING_PASSWORD']
+            fill_in "login", :with=>CONFIG['BING_USERNAME']
+            fill_in "passwd", :with=>CONFIG['BING_PASSWORD']
             save_screenshot "status.png"
             find(:xpath, "//input[@id='idSIButton9']").click
             save_screenshot "status.png"
