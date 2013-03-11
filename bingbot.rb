@@ -1,4 +1,5 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
+
 require "rubygems"
 require "bundler/setup"
 require "capybara"
