@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 gem "capybara"
-#gem "capybara-webkit"
+gem "capybara-webkit"
+gem "selenium-webdriver"
 gem 'poltergeist', '~> 1.5.1'
 gem "faker"
 gem "activesupport"
