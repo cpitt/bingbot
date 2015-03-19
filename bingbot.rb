@@ -15,20 +15,23 @@ Capybara.register_driver :poltergeist do |app|
 end
 Capybara.current_driver = :poltergeist
 Capybara.default_wait_time = 15
-CONFIG = YAML.load_file(File.join(File.dirname(File.expand_path(__FILE__)),"config.yml")) unless defined? CONFIG
 
 module Bing
   class Bing_bot
     include Capybara::DSL
+    def initialize
+      @accounts = YAML.load_file(File.join(File.dirname(File.expand_path(__FILE__)),"config.yml"))['accounts']
+      @current_account = @accounts[0]
+    end
 
     def log_in 
-      puts 'Signing in'
+      puts "Signing into #{@current_account['username']}"
       within 'div.signInOptions' do
         first(:link, 'Sign in').click
       end
       page.has_text? 'Sign in'
-      fill_in "login", :with=>CONFIG['BING_USERNAME']
-      fill_in "passwd", :with=>CONFIG['BING_PASSWORD']
+      fill_in "login", with: @current_account['username']
+      fill_in "passwd", with: @current_account['password']
       find(:xpath, "//input[@id='idSIButton9']").click
     end
 
@@ -69,21 +72,31 @@ module Bing
     end
 
     def get_bonus_points
-      #TODO
-      #click on daily offers
-      #find('div.tileset', text: 'Earn and explore').click
+      puts 'Getting bonus points'
+      visit_rewards_dash
+      bonus_point_ul = find('div.tileset', text: 'Earn and explore').find('ul.row')
+      if bonus_point_ul.has_no_css? '.open-check'
+        puts '...Done'
+        return true
+      else
+        bonus_point_ul.first('.open-check').click
+        page.has_content?
+        get_bonus_points
+      end
     end
 
     def do_mobile_searches
       page.driver.headers = {"User-Agent" => "Mozilla/5.0 (Linux; Android 4.1.1; Galaxy Nexus Build/JRO03C) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19"}
       puts 'Starting Mobile Searches'
-      do_search (@mobile_available - @mobile_completed) * 2
+      number_of_searches = @mobile_available - @mobile_completed
+      do_search number_of_searches * 2 if number_of_searches
     end
 
     def do_pc_searches
       page.driver.headers = {"User-Agent" => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.45 Safari/535.19"}
       puts 'Starting Pc Searches'
-      do_search (@pc_available - @pc_completed) * 2
+      number_of_searches = @pc_available - @pc_completed
+      do_search number_of_searches * 2 if number_of_searches
     end
 
     def do_search searches
@@ -100,11 +113,21 @@ module Bing
     end
 
 
+    def log_out
+      puts "Signing out of #{@current_account['username']}..."
+      Capybara.reset_sessions!
+    end
+
     def start
-      check_mobile_points
-      check_pc_points
-      do_mobile_searches
-      do_pc_searches
+      @accounts.each do |account|
+        @current_account = account
+        check_mobile_points
+        check_pc_points
+        do_mobile_searches
+        do_pc_searches
+        #get_bonus_points
+        log_out
+      end
     end
 
   end

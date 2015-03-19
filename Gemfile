@@ -1,10 +1,8 @@
 source 'https://rubygems.org'
 gem "capybara"
 gem "capybara-webkit"
-gem "selenium-webdriver"
-gem 'poltergeist', '~> 1.5.1'
+gem 'poltergeist'
 gem "faker"
 gem "activesupport"
 gem "pry"
-#gem "random-word"
-gem 'literate_randomizer', '~> 0.4.0'
+gem 'literate_randomizer'
